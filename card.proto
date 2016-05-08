@@ -1,3 +1,5 @@
+message Empty {}
+
 message Card {
 	// A web link to the image to display
 	optional string image = 1;
@@ -10,4 +12,12 @@ message Card {
 	     NONE = 0;
 	}
 	optional Action action = 3;
+}
+
+message CardList {
+	repeated Card cards = 1;
+}
+
+service CardService {
+	rpc GetCards (Empty) returns (CardList);
 }
