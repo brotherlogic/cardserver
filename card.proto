@@ -1,0 +1,13 @@
+message Card {
+	// A web link to the image to display
+	optional string image = 1;
+
+	// The text to display with the card
+	optional string text = 2;
+
+	// The action to take along with the card
+	enum Action {
+	     NONE = 0;
+	}
+	optional Action action = 3;
+}
