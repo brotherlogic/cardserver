@@ -16,6 +16,18 @@ message Card {
 	     NONE = 0;
 	}
 	Action action = 3;
+
+	// The date the card was created
+	int64 created_date = 4;
+
+	// The date from which the card should be applied
+	int64 application_date = 5;
+
+	// The date from which the card can be removed
+	int64 expiration_date = 6;
+
+	// The chosen priority of the card
+	int32 priority = 7;
 }
 
 message CardList {
@@ -23,5 +35,9 @@ message CardList {
 }
 
 service CardService {
-	rpc GetCards (Empty) returns (CardList);
+	// Gets the cards currently held in the system
+	rpc GetCards (Empty) returns (CardList) {};
+
+	// Adds the cards in the list to the system - returns the resulting card list
+	rpc AddCards (CardList) returns (CardList) {}; 
 }
