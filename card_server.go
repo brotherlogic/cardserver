@@ -30,6 +30,7 @@ func (s *server) GetCards (ctx context.Context, in *pb.Empty) (*pb.CardList, err
 
 func (s *server) AddCards (ctx context.Context, in *pb.CardList) (*pb.CardList, error) {
      s.cards.Cards = append(s.cards.Cards, in.Cards...)
+     log.Printf("Received %v", s.cards.Cards)
      return s.cards, nil
 }
 
@@ -40,6 +41,7 @@ func main() {
      }
 
      s := grpc.NewServer()
-     pb.RegisterCardServiceServer(s, &server{})
+     server := InitServer()
+     pb.RegisterCardServiceServer(s, &server)
      s.Serve(lis)
 }
