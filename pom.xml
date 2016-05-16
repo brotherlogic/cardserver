@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.github.brotherlogic.cardserver</groupId>
+  <artifactId>card_ui</artifactId>
+  <packaging>jar</packaging>
+  <version>0.1</version>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Interface for consuming cards</description>
+  <url>https://github.com/brotherlogic/cardserver</url>
+
+  <properties>
+    <checkstyle.version>6.8.1</checkstyle.version>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Simon Tucker</name>
+      <email>brotherlogic@gmail.com</email>
+    </developer>
+  </developers>
+
+
+  <prerequisites>
+    <maven>2.2.1</maven>
+  </prerequisites>
+
+  <dependencies>
+  </dependencies>
+
+</project>

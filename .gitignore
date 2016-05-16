@@ -26,5 +26,6 @@ _testmain.go
 
 *~
 *#
-cardserver
+/cardserver
 time_card
+target/
