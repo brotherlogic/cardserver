@@ -28,3 +28,4 @@ _testmain.go
 *#
 cardserver
 time_card
+nohup.out
