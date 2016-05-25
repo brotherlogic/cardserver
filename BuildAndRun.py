@@ -23,5 +23,5 @@ size_2 = os.path.getsize('./oldcardserver')
 
 if size_1 != size_2:
     for line in os.popen('killall cardserver').readlines():
-        print line.strip()
-    print subprocess.Popen('./cardserver')
+        pass
+    subprocess.Popen('./cardserver')
