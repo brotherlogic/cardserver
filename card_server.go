@@ -20,8 +20,11 @@ type server struct {
 func InitServer() server {
 	s := server{}
 	s.cards = &pb.CardList{}
-
 	return s
+}
+
+func (s *server) dedup() {
+	log.Printf("Deduping")
 }
 
 func (s *server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, error) {
