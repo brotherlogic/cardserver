@@ -1,3 +1,1 @@
-Cardserver servers cards.
-
-More details.
+Cardserver servers cards. It does not yet dedup or garbage collect.
