@@ -7,33 +7,41 @@ import "golang.org/x/net/context"
 import "google.golang.org/grpc"
 import pb "github.com/brotherlogic/cardserver/card"
 
+func Prepend(str string) string {
+	if len(str) == 1 {
+		return "0" + str
+	} else {
+		return str
+	}
+}
+
 func Build() pb.CardList {
-     // Generate 10 cards from the current time onwards
-     now := time.Now().Truncate(time.Minute)
-     cards := pb.CardList{}
-     for i:=0; i < 10 ; i++ {
-          card := pb.Card{}
-	  card.Text = strconv.Itoa(now.Hour()) + ":" + strconv.Itoa(now.Minute())
-	  card.ApplicationDate = now.Unix()
+	// Generate 10 cards from the current time onwards
+	now := time.Now().Truncate(time.Minute)
+	cards := pb.CardList{}
+	for i := 0; i < 10; i++ {
+		card := pb.Card{}
+		card.Text = Prepend(strconv.Itoa(now.Hour())) + ":" + Prepend(strconv.Itoa(now.Minute()))
+		card.ApplicationDate = now.Unix()
 
-	  //Add a minute
-	  now = now.Add(time.Minute)
-	  card.ExpirationDate = now.Unix()
+		//Add a minute
+		now = now.Add(time.Minute)
+		card.ExpirationDate = now.Unix()
 
-	  cards.Cards = append(cards.Cards, &card)
-     }
+		cards.Cards = append(cards.Cards, &card)
+	}
 
-     return cards
+	return cards
 }
 
 func main() {
-     cards := Build()
-     conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	cards := Build()
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 
-     defer conn.Close()
-     client := pb.NewCardServiceClient(conn)
-     _, err = client.AddCards(context.Background(), &cards)
-     if err != nil {
-     	log.Printf("Problem adding cards %v", err)
-     }
+	defer conn.Close()
+	client := pb.NewCardServiceClient(conn)
+	_, err = client.AddCards(context.Background(), &cards)
+	if err != nil {
+		log.Printf("Problem adding cards %v", err)
+	}
 }
