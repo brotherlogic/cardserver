@@ -9,6 +9,39 @@ import (
 	"time"
 )
 
+func TestPriority(t *testing.T) {
+	card1 := pb.Card{
+		Priority: 10,
+	}
+	card2 := pb.Card{
+		Priority: 50,
+	}
+	card3 := pb.Card{
+		Priority: 5,
+	}
+
+	cardlist := pb.CardList{}
+	cardlist.Cards = append(cardlist.Cards, &card1)
+	cardlist.Cards = append(cardlist.Cards, &card2)
+	cardlist.Cards = append(cardlist.Cards, &card3)
+
+	s := InitServer()
+	cards, err := s.AddCards(context.Background(), &cardlist)
+	if err != nil {
+		t.Errorf("Error adding cards %v", err)
+	}
+	cards, err = s.GetCards(context.Background(), &pb.Empty{})
+	if err != nil {
+		t.Errorf("Error getting cards %v", err)
+	}
+
+	for i := 1; i < len(cards.Cards); i++ {
+		if cards.Cards[i].Priority < cards.Cards[i-1].Priority {
+			t.Errorf("Cards are not priority sorted %v -> %v", cards.Cards[i], cards.Cards[i-1])
+		}
+	}
+}
+
 func TestAdd(t *testing.T) {
 	card := pb.Card{}
 	s := InitServer()
