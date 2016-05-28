@@ -9,8 +9,7 @@ import pb "github.com/brotherlogic/cardserver/card"
 
 func WriteAuthCard(client string) pb.CardList {
 	authUrl := "https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=http://localhost:8090/&response_type=token"
-	newAuthUrl := strings.Replace(authUrl, "CLIENT-ID", client, 0)
-
+	newAuthUrl := strings.Replace(authUrl, "CLIENT-ID", client, 1)
 	card := pb.Card{}
 	card.Text = newAuthUrl
 	card.Action = pb.Card_VISITURL
@@ -22,6 +21,7 @@ func WriteAuthCard(client string) pb.CardList {
 
 func main() {
 	var clientId = flag.String("client", "", "Client ID for accessing Instagram")
+	flag.Parse()
 	cards := WriteAuthCard(*clientId)
 	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 
