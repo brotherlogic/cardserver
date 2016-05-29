@@ -42,6 +42,36 @@ func TestPriority(t *testing.T) {
 	}
 }
 
+func TestDedup(t *testing.T) {
+	card1 := pb.Card{
+		Hash: "madeup",
+	}
+	card2 := pb.Card{
+		Hash: "ditto",
+	}
+	card3 := pb.Card{
+	      Hash: "madeup",
+	      }
+
+	cardlist := pb.CardList{}
+	cardlist.Cards = append(cardlist.Cards, &card1)
+	cardlist.Cards = append(cardlist.Cards, &card2)
+	cardlist.Cards = append(cardlist.Cards, &card3)
+
+	s := InitServer()
+	cards, err := s.AddCards(context.Background(), &cardlist)
+	if err != nil {
+		t.Errorf("Error adding cards %v", err)
+	}
+	cards, err = s.GetCards(context.Background(), &pb.Empty{})
+	if err != nil {
+		t.Errorf("Error getting cards %v", err)
+	}			
+	if len(cards.Cards) != 2 {
+	   t.Errorf("Cards have not been deduped")
+	   }
+}
+
 func TestAdd(t *testing.T) {
 	card := pb.Card{}
 	s := InitServer()

@@ -25,8 +25,17 @@ func InitServer() server {
 	return s
 }
 
-func (s *server) dedup() {
-	log.Printf("Deduping")
+func (s *server) dedup(list *pb.CardList) *pb.CardList {
+     filteredCards := &pb.CardList{}
+     var seen map[string]bool
+     seen = make(map[string]bool)	
+     for _, card := range(list.Cards) {
+     	 if _, ok := seen[card.Hash]; !ok {
+	    filteredCards.Cards = append(filteredCards.Cards, card)
+	    seen[card.Hash] = true
+	 }
+     }
+     return filteredCards
 }
 
 func (s *server) removeStaleCards() {
@@ -54,6 +63,7 @@ func (s *server) sortCards() {
 
 func (s *server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, error) {
 	s.removeStaleCards()
+	s.cards = s.dedup(s.cards)
 	s.sortCards()
 	return s.cards, nil
 }
