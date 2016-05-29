@@ -29,6 +29,9 @@ message Card {
 
 	// The chosen priority of the card
 	int32 priority = 7;
+
+	// A hash id of the card
+	string hash = 8;
 }
 
 message CardList {

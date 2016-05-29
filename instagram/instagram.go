@@ -13,6 +13,7 @@ func WriteAuthCard(client string) pb.CardList {
 	card := pb.Card{}
 	card.Text = newAuthUrl
 	card.Action = pb.Card_VISITURL
+	card.Hash = "instagramauth"
 	cards := pb.CardList{}
 	cards.Cards = append(cards.Cards, &card)
 

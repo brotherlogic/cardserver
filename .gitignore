@@ -30,3 +30,4 @@ cardserver
 time_card
 nohup.out
 oldcardserver
+target/
