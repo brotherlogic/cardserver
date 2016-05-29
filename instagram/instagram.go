@@ -8,7 +8,7 @@ import "google.golang.org/grpc"
 import pb "github.com/brotherlogic/cardserver/card"
 
 func WriteAuthCard(client string) pb.CardList {
-	authUrl := "https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=http://localhost:8090&response_type=token"
+	authUrl := "https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=http://localhost:8090&response_type=code"
 	newAuthUrl := strings.Replace(authUrl, "CLIENT-ID", client, 1)
 	card := pb.Card{}
 	card.Text = newAuthUrl
