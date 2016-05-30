@@ -34,6 +34,10 @@ message Card {
 	string hash = 8;
 }
 
+message DeleteRequest {
+	string hash = 1;
+}
+
 message CardList {
 	repeated Card cards = 1;
 }
@@ -43,5 +47,8 @@ service CardService {
 	rpc GetCards (Empty) returns (CardList) {};
 
 	// Adds the cards in the list to the system - returns the resulting card list
-	rpc AddCards (CardList) returns (CardList) {}; 
+	rpc AddCards (CardList) returns (CardList) {};
+
+	// Deletes existing cards
+	rpc DeleteCards (DeleteRequest) returns (CardList) {};
 }

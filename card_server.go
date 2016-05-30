@@ -25,6 +25,16 @@ func InitServer() server {
 	return s
 }
 
+func (s *server) remove(hash string) *pb.CardList {
+     filteredCards := &pb.CardList{}
+     for _, card := range(s.cards.Cards) {
+     	 if card.Hash != hash {
+	    filteredCards.Cards = append(filteredCards.Cards, card)
+	 }
+     }
+     return filteredCards
+}
+
 func (s *server) dedup(list *pb.CardList) *pb.CardList {
      filteredCards := &pb.CardList{}
      var seen map[string]bool
@@ -37,6 +47,7 @@ func (s *server) dedup(list *pb.CardList) *pb.CardList {
      }
      return filteredCards
 }
+
 
 func (s *server) removeStaleCards() {
 
@@ -71,6 +82,11 @@ func (s *server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, erro
 func (s *server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, error) {
 	s.cards.Cards = append(s.cards.Cards, in.Cards...)
 	return s.cards, nil
+}
+
+func (s *server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
+     s.cards = s.remove(in.Hash)
+     return s.cards, nil
 }
 
 func main() {
