@@ -24,6 +24,25 @@ func processAccessCode(client string, secret string, code string) []byte {
      return body
 }
 
+func ProcessInstagramRating(card pb.Card) string {
+     picture_id := card.Text
+     urlv := "https://api.instagram.com/v1/media/" + picture_id + "/likes"
+     return urlv
+}
+
+func visitUrl(urlv string, access_token string) []byte {
+     resp, err := http.PostForm(urlv, url.Values{"access_token": {access_token}})
+
+     if err != nil {
+     	panic(err)
+	}
+
+     defer resp.Body.Close()
+     body, _ := ioutil.ReadAll(resp.Body)
+
+     return body
+}
+
 func ReadCards(client string, secret string) {
      conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
      if err != nil {
