@@ -66,6 +66,17 @@ func readCards(client string, secret string) {
 		if err != nil {
 			panic(err)
 		}
+
+		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+
+		defer conn.Close()
+		client := pb.NewCardServiceClient(conn)
+		req := pb.DeleteRequest{Hash: "instagramauthresp"}
+		_, err = client.DeleteCards(context.Background(), &req)
+		if err != nil {
+			log.Printf("Problem delete auth resp card %v", err)
+		}
+
 	}
 }
 
