@@ -24,14 +24,14 @@ func processAccessCode(client string, secret string, code string) []byte {
      return body
 }
 
-func ProcessInstagramRating(card pb.Card) string {
-     picture_id := card.Text
-     urlv := "https://api.instagram.com/v1/media/" + picture_id + "/likes"
+func processInstagramRating(card pb.Card) string {
+     pictureID := card.Text
+     urlv := "https://api.instagram.com/v1/media/" + pictureID + "/likes"
      return urlv
 }
 
-func visitUrl(urlv string, access_token string) []byte {
-     resp, err := http.PostForm(urlv, url.Values{"access_token": {access_token}})
+func visitURL(urlv string, accessToken string) []byte {
+     resp, err := http.PostForm(urlv, url.Values{"access_token": {accessToken}})
 
      if err != nil {
      	panic(err)
@@ -43,7 +43,7 @@ func visitUrl(urlv string, access_token string) []byte {
      return body
 }
 
-func ReadCards(client string, secret string) {
+func readCards(client string, secret string) {
      conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
      if err != nil {
        	  log.Fatalf("did not connect: %v", err)
@@ -52,28 +52,28 @@ func ReadCards(client string, secret string) {
      clientReader := pb.NewCardServiceClient(conn)
      list, err := clientReader.GetCards(context.Background(), &pb.Empty{})
 
-     access_code := make([]byte,0)
+     var accessCode []byte
      for _, card := range(list.Cards) {
      	 if card.Hash == "instagramauthresp" {
 	    code := card.Text[11:43]
-	    access_code = processAccessCode(client, secret, code)
+	    accessCode = processAccessCode(client, secret, code)
 	 }
      }
 
      //Write the access card out to a file
-     if len(access_code) > 0 {
-     err = ioutil.WriteFile("access_code", access_code, 0644)
+     if len(accessCode) > 0 {
+     err = ioutil.WriteFile("access_code", accessCode, 0644)
      if err != nil {
      	panic(err)
      }
      }
 }
 
-func WriteAuthCard(client string) pb.CardList {
-	authUrl := "https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=http://localhost:8090&response_type=code"
-	newAuthUrl := strings.Replace(authUrl, "CLIENT-ID", client, 1)
+func writeAuthCard(client string) pb.CardList {
+	authURL := "https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=http://localhost:8090&response_type=code"
+	newAuthURL := strings.Replace(authURL, "CLIENT-ID", client, 1)
 	card := pb.Card{}
-	card.Text = newAuthUrl
+	card.Text = newAuthURL
 	card.Action = pb.Card_VISITURL
 	card.Hash = "instagramauth"
 	cards := pb.CardList{}
@@ -82,11 +82,11 @@ func WriteAuthCard(client string) pb.CardList {
 	return cards
 }
 
-func WriteInstagramCards(user string, access_code string) pb.CardList{
+func writeInstagramCards(user string, accessCode string) pb.CardList{
 
      cards := pb.CardList{}
      
-     urlv:= "https://api.instagram.com/v1/users/" + user + "/media/recent/?access_token=" + access_code + "&count=10"
+     urlv:= "https://api.instagram.com/v1/users/" + user + "/media/recent/?access_token=" + accessCode + "&count=10"
      resp, err := http.Get(urlv)
      if err != nil {
      	panic(nil)
@@ -126,14 +126,14 @@ func WriteInstagramCards(user string, access_code string) pb.CardList{
 }
 
 func main() {
-	var clientId = flag.String("client", "", "Client ID for accessing Instagram")
+	var clientID = flag.String("client", "", "Client ID for accessing Instagram")
 	var secret = flag.String("secret", "", "Secret for accessing Instagram")
 	flag.Parse()
 
 	text, err := ioutil.ReadFile("access_code")
 
 	if err != nil {
-		cards := WriteAuthCard(*clientId)
+		cards := writeAuthCard(*clientID)
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 		
 		defer conn.Close()
@@ -143,13 +143,13 @@ func main() {
 		   log.Printf("Problem adding cards %v", err)
 		}
 
-		ReadCards(*clientId, *secret)		
+		readCards(*clientID, *secret)		
 	} else {
 	  var dat map[string]interface{}
 	  if err := json.Unmarshal([]byte(text), &dat); err != nil {
 	     panic(err)
 	     }
-	  cards := WriteInstagramCards("50987102", dat["access_token"].(string))
+	  cards := writeInstagramCards("50987102", dat["access_token"].(string))
 	  		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 		
 		defer conn.Close()

@@ -15,17 +15,19 @@ const (
 	port = ":50051"
 )
 
-type server struct {
+// Server The server to use
+type Server struct {
 	cards *pb.CardList
 }
 
-func InitServer() server {
-	s := server{}
+// InitServer Prepares the server to run
+func InitServer() Server {
+	s := Server{}
 	s.cards = &pb.CardList{}
 	return s
 }
 
-func (s *server) remove(hash string) *pb.CardList {
+func (s *Server) remove(hash string) *pb.CardList {
      filteredCards := &pb.CardList{}
      for _, card := range(s.cards.Cards) {
      	 if card.Hash != hash {
@@ -35,7 +37,7 @@ func (s *server) remove(hash string) *pb.CardList {
      return filteredCards
 }
 
-func (s *server) dedup(list *pb.CardList) *pb.CardList {
+func (s *Server) dedup(list *pb.CardList) *pb.CardList {
      filteredCards := &pb.CardList{}
      var seen map[string]bool
      seen = make(map[string]bool)	
@@ -49,7 +51,7 @@ func (s *server) dedup(list *pb.CardList) *pb.CardList {
 }
 
 
-func (s *server) removeStaleCards() {
+func (s *Server) removeStaleCards() {
 
 	filteredCards := &pb.CardList{}
 	for _, card := range s.cards.Cards {
@@ -62,29 +64,32 @@ func (s *server) removeStaleCards() {
 	s.cards = filteredCards
 }
 
-type ByPriority []*pb.Card
+type byPriority []*pb.Card
 
-func (a ByPriority) Len() int           { return len(a) }
-func (a ByPriority) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByPriority) Less(i, j int) bool { return a[i].Priority < a[j].Priority }
+func (a byPriority) Len() int           { return len(a) }
+func (a byPriority) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byPriority) Less(i, j int) bool { return a[i].Priority < a[j].Priority }
 
-func (s *server) sortCards() {
-	sort.Sort(ByPriority(s.cards.Cards))
+func (s *Server) sortCards() {
+	sort.Sort(byPriority(s.cards.Cards))
 }
 
-func (s *server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, error) {
+// GetCards gets the card list on the server
+func (s *Server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, error) {
 	s.removeStaleCards()
 	s.cards = s.dedup(s.cards)
 	s.sortCards()
 	return s.cards, nil
 }
 
-func (s *server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, error) {
+// AddCards adds cards to the server
+func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, error) {
 	s.cards.Cards = append(s.cards.Cards, in.Cards...)
 	return s.cards, nil
 }
 
-func (s *server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
+// DeleteCards removes cards from the server
+func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
      s.cards = s.remove(in.Hash)
      return s.cards, nil
 }

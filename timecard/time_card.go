@@ -7,21 +7,20 @@ import "golang.org/x/net/context"
 import "google.golang.org/grpc"
 import pb "github.com/brotherlogic/cardserver/card"
 
-func Prepend(str string) string {
+func prepend(str string) string {
 	if len(str) == 1 {
 		return "0" + str
-	} else {
+	} 
 		return str
-	}
 }
 
-func Build() pb.CardList {
+func build() pb.CardList {
 	// Generate 10 cards from the current time onwards
 	now := time.Now().Truncate(time.Minute)
 	cards := pb.CardList{}
 	for i := 0; i < 10; i++ {
 		card := pb.Card{}
-		card.Text = Prepend(strconv.Itoa(now.Hour())) + ":" + Prepend(strconv.Itoa(now.Minute()))
+		card.Text = prepend(strconv.Itoa(now.Hour())) + ":" + prepend(strconv.Itoa(now.Minute()))
 		card.Hash = "timecard" + card.Text
 		card.ApplicationDate = now.Unix()
 
@@ -36,7 +35,7 @@ func Build() pb.CardList {
 }
 
 func main() {
-	cards := Build()
+	cards := build()
 	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 
 	defer conn.Close()
