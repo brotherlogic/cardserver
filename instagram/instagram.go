@@ -146,8 +146,8 @@ func main() {
 		readCards(*clientID, *secret)
 	} else {
 		var dat map[string]interface{}
-		log.Printf("Output = %v", string(text))
 		if err := json.Unmarshal([]byte(text), &dat); err != nil {
+			log.Printf("Error unmarshalling %v with %v and %v", string(text), clientID, secret)
 			panic(err)
 		}
 		cards := writeInstagramCards("50987102", dat["access_token"].(string))
