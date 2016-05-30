@@ -129,7 +129,6 @@ func main() {
 	var clientID = flag.String("client", "", "Client ID for accessing Instagram")
 	var secret = flag.String("secret", "", "Secret for accessing Instagram")
 	flag.Parse()
-
 	text, err := ioutil.ReadFile("access_code")
 
 	if err != nil {
@@ -147,11 +146,11 @@ func main() {
 	} else {
 		var dat map[string]interface{}
 		if err := json.Unmarshal([]byte(text), &dat); err != nil {
-			log.Printf("Error unmarshalling %v with %v and %v", string(text), clientID, secret)
+			log.Printf("Error unmarshalling %v with %v and %v", string(text), *clientID, *secret)
 			panic(err)
 		}
 		if dat == nil || dat["access_token"] == nil {
-			log.Printf("Cannot get access token: %v from %v given $v,%v", dat, string(text), clientID, secret)
+			log.Printf("Cannot get access token: %v from %v given $v,%v", dat, string(text), *clientID, *secret)
 		}
 		cards := writeInstagramCards("50987102", dat["access_token"].(string))
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
