@@ -151,7 +151,7 @@ func main() {
 			panic(err)
 		}
 		if dat == nil || dat["access_token"] == nil {
-			log.Printf("Cannot get access token: %v from %v", dat, string(text))
+			log.Printf("Cannot get access token: %v from %v given $v,%v", dat, string(text), clientID, secret)
 		}
 		cards := writeInstagramCards("50987102", dat["access_token"].(string))
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
