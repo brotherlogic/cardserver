@@ -15,6 +15,7 @@ message Card {
 	enum Action {
 	     NONE = 0;
              VISITURL = 1;
+	     RATING = 2;
 	}
 	Action action = 3;
 
@@ -32,6 +33,9 @@ message Card {
 
 	// A hash id of the card
 	string hash = 8;
+
+	// Metadata for the action
+	repeated string action_metadata = 9;
 }
 
 message DeleteRequest {
