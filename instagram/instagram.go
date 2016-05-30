@@ -12,61 +12,61 @@ import "google.golang.org/grpc"
 import pb "github.com/brotherlogic/cardserver/card"
 
 func processAccessCode(client string, secret string, code string) []byte {
-     urlv:= "https://api.instagram.com/oauth/access_token"
-     resp, err := http.PostForm(urlv, url.Values{"client_id": {client}, "client_secret": {secret}, "grant_type":{"authorization_code"}, "redirect_uri": {"http://localhost:8090"}, "code": {code}, "scope": {"public_content+likes"}})
-     if err != nil {
-     	panic(err)
-     }
+	urlv := "https://api.instagram.com/oauth/access_token"
+	resp, err := http.PostForm(urlv, url.Values{"client_id": {client}, "client_secret": {secret}, "grant_type": {"authorization_code"}, "redirect_uri": {"http://localhost:8090"}, "code": {code}, "scope": {"public_content+likes"}})
+	if err != nil {
+		panic(err)
+	}
 
-     defer resp.Body.Close()
-     body, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
 
-     return body
+	return body
 }
 
 func processInstagramRating(card pb.Card) string {
-     pictureID := card.Text
-     urlv := "https://api.instagram.com/v1/media/" + pictureID + "/likes"
-     return urlv
+	pictureID := card.Text
+	urlv := "https://api.instagram.com/v1/media/" + pictureID + "/likes"
+	return urlv
 }
 
 func visitURL(urlv string, accessToken string) []byte {
-     resp, err := http.PostForm(urlv, url.Values{"access_token": {accessToken}})
+	resp, err := http.PostForm(urlv, url.Values{"access_token": {accessToken}})
 
-     if err != nil {
-     	panic(err)
+	if err != nil {
+		panic(err)
 	}
 
-     defer resp.Body.Close()
-     body, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
 
-     return body
+	return body
 }
 
 func readCards(client string, secret string) {
-     conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
-     if err != nil {
-       	  log.Fatalf("did not connect: %v", err)
-     }
-     defer conn.Close()
-     clientReader := pb.NewCardServiceClient(conn)
-     list, err := clientReader.GetCards(context.Background(), &pb.Empty{})
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	clientReader := pb.NewCardServiceClient(conn)
+	list, err := clientReader.GetCards(context.Background(), &pb.Empty{})
 
-     var accessCode []byte
-     for _, card := range(list.Cards) {
-     	 if card.Hash == "instagramauthresp" {
-	    code := card.Text[11:43]
-	    accessCode = processAccessCode(client, secret, code)
-	 }
-     }
+	var accessCode []byte
+	for _, card := range list.Cards {
+		if card.Hash == "instagramauthresp" {
+			code := card.Text[11:43]
+			accessCode = processAccessCode(client, secret, code)
+		}
+	}
 
-     //Write the access card out to a file
-     if len(accessCode) > 0 {
-     err = ioutil.WriteFile("access_code", accessCode, 0644)
-     if err != nil {
-     	panic(err)
-     }
-     }
+	//Write the access card out to a file
+	if len(accessCode) > 0 {
+		err = ioutil.WriteFile("access_code", accessCode, 0644)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func writeAuthCard(client string) pb.CardList {
@@ -82,45 +82,45 @@ func writeAuthCard(client string) pb.CardList {
 	return cards
 }
 
-func writeInstagramCards(user string, accessCode string) pb.CardList{
+func writeInstagramCards(user string, accessCode string) pb.CardList {
 
-     cards := pb.CardList{}
-     
-     urlv:= "https://api.instagram.com/v1/users/" + user + "/media/recent/?access_token=" + accessCode + "&count=10"
-     resp, err := http.Get(urlv)
-     if err != nil {
-     	panic(nil)
+	cards := pb.CardList{}
+
+	urlv := "https://api.instagram.com/v1/users/" + user + "/media/recent/?access_token=" + accessCode + "&count=10"
+	resp, err := http.Get(urlv)
+	if err != nil {
+		panic(nil)
 	}
-     defer resp.Body.Close()
-     body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
 
-     if err != nil {
-     	panic(nil)
-     }
-	  var dat map[string]interface{}
-     err = json.Unmarshal([]byte(body), &dat)
-     if err != nil {
-        panic(nil)
+	if err != nil {
+		panic(nil)
+	}
+	var dat map[string]interface{}
+	err = json.Unmarshal([]byte(body), &dat)
+	if err != nil {
+		panic(nil)
 	}
 
 	var pics []interface{}
 	pics = dat["data"].([]interface{})
 
-	for _, pico := range(pics) {
-	    pic := pico.(map[string]interface{})
-	    captionObj := pic["caption"]
-	    caption := ""
-	    if captionObj != nil {
-	       caption = captionObj.(map[string]interface{})["text"].(string)
-	       }
-	    var images map[string]interface{}
-	    images = pic["images"].(map[string]interface{})
-	    image := images["standard_resolution"].(map[string]interface{})["url"].(string)
+	for _, pico := range pics {
+		pic := pico.(map[string]interface{})
+		captionObj := pic["caption"]
+		caption := ""
+		if captionObj != nil {
+			caption = captionObj.(map[string]interface{})["text"].(string)
+		}
+		var images map[string]interface{}
+		images = pic["images"].(map[string]interface{})
+		image := images["standard_resolution"].(map[string]interface{})["url"].(string)
 
-	    card := pb.Card{}
-	    card.Text = caption
-	    card.Image = image
-	    cards.Cards = append(cards.Cards, &card)
+		card := pb.Card{}
+		card.Text = caption
+		card.Image = image
+		cards.Cards = append(cards.Cards, &card)
 	}
 	return cards
 }
@@ -135,28 +135,29 @@ func main() {
 	if err != nil {
 		cards := writeAuthCard(*clientID)
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
-		
+
 		defer conn.Close()
 		client := pb.NewCardServiceClient(conn)
 		_, err = client.AddCards(context.Background(), &cards)
 		if err != nil {
-		   log.Printf("Problem adding cards %v", err)
+			log.Printf("Problem adding cards %v", err)
 		}
 
-		readCards(*clientID, *secret)		
+		readCards(*clientID, *secret)
 	} else {
-	  var dat map[string]interface{}
-	  if err := json.Unmarshal([]byte(text), &dat); err != nil {
-	     panic(err)
-	     }
-	  cards := writeInstagramCards("50987102", dat["access_token"].(string))
-	  		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
-		
+		var dat map[string]interface{}
+		log.Printf("Output = %v", text)
+		if err := json.Unmarshal([]byte(text), &dat); err != nil {
+			panic(err)
+		}
+		cards := writeInstagramCards("50987102", dat["access_token"].(string))
+		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+
 		defer conn.Close()
 		client := pb.NewCardServiceClient(conn)
 		_, err = client.AddCards(context.Background(), &cards)
 		if err != nil {
-		   log.Printf("Problem adding cards %v", err)
+			log.Printf("Problem adding cards %v", err)
 		}
 
 	}
