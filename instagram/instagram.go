@@ -13,7 +13,6 @@ import pb "github.com/brotherlogic/cardserver/card"
 
 func processAccessCode(client string, secret string, code string) []byte {
      urlv:= "https://api.instagram.com/oauth/access_token"
-     log.Printf("CODE = %v", code)
      resp, err := http.PostForm(urlv, url.Values{"client_id": {client}, "client_secret": {secret}, "grant_type":{"authorization_code"}, "redirect_uri": {"http://localhost:8090"}, "code": {code}, "scope": {"public_content+likes"}})
      if err != nil {
      	panic(err)
@@ -26,7 +25,6 @@ func processAccessCode(client string, secret string, code string) []byte {
 }
 
 func ReadCards(client string, secret string) {
-     log.Printf("Starting read")
      conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
      if err != nil {
        	  log.Fatalf("did not connect: %v", err)
@@ -35,11 +33,8 @@ func ReadCards(client string, secret string) {
      clientReader := pb.NewCardServiceClient(conn)
      list, err := clientReader.GetCards(context.Background(), &pb.Empty{})
 
-     log.Printf("READ = %v", list)
-
      access_code := make([]byte,0)
      for _, card := range(list.Cards) {
-     	 log.Printf("READ %v", card)
      	 if card.Hash == "instagramauthresp" {
 	    code := card.Text[11:43]
 	    access_code = processAccessCode(client, secret, code)
@@ -129,7 +124,6 @@ func main() {
 		   log.Printf("Problem adding cards %v", err)
 		}
 
-		log.Printf("Reading cards")
 		ReadCards(*clientId, *secret)		
 	} else {
 	  var dat map[string]interface{}
