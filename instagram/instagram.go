@@ -146,7 +146,7 @@ func main() {
 		readCards(*clientID, *secret)
 	} else {
 		var dat map[string]interface{}
-		log.Printf("Output = %v", text)
+		log.Printf("Output = %v", string(text))
 		if err := json.Unmarshal([]byte(text), &dat); err != nil {
 			panic(err)
 		}
