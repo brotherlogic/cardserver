@@ -150,6 +150,9 @@ func main() {
 			log.Printf("Error unmarshalling %v with %v and %v", string(text), clientID, secret)
 			panic(err)
 		}
+		if dat["access_token"] == nil {
+			log.Printf("Cannot get access token: %v from %v", dat, string(text))
+		}
 		cards := writeInstagramCards("50987102", dat["access_token"].(string))
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 
