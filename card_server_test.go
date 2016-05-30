@@ -90,6 +90,40 @@ func TestAdd(t *testing.T) {
 	}
 }
 
+func TestDelete(t *testing.T) {
+     card := pb.Card{}
+     card.Hash = "todelete"
+     s := InitServer()
+
+     cardlist := pb.CardList{}
+	cardlist.Cards = append(cardlist.Cards, &card)
+
+	cards, err := s.AddCards(context.Background(), &cardlist)
+
+	if err != nil {
+		t.Errorf("Error in adding a card: %v", err)
+	}
+
+	if len(cards.Cards) != 1 {
+		t.Errorf("Not enough cards: %v", len(cards.Cards))
+	}
+
+     deleteReq := pb.DeleteRequest{}
+     deleteReq.Hash = "todelete"
+     cards, err = s.DeleteCards(context.Background(), &deleteReq)
+
+	cards, err = s.GetCards(context.Background(), &pb.Empty{})
+	if err != nil {
+		t.Errorf("Error getting cards: %v", err)
+	}
+
+	if len(cards.Cards) != 0 {
+		t.Errorf("Card has not been deleted: %v:%v", len(cards.Cards), cards.Cards)
+	}
+
+     
+}
+
 func TestRemoveStale(t *testing.T) {
 	card := pb.Card{ExpirationDate: time.Now().Unix() - 10}
 	s := InitServer()
