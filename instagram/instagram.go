@@ -41,7 +41,6 @@ func ReadCards(client string, secret string) {
      for _, card := range(list.Cards) {
      	 log.Printf("READ %v", card)
      	 if card.Hash == "instagramauthresp" {
-	    log.Printf("HERE = %v", card)
 	    code := card.Text[11:43]
 	    access_code = processAccessCode(client, secret, code)
 	 }
@@ -119,7 +118,6 @@ func main() {
 
 	text, err := ioutil.ReadFile("access_code")
 
-	log.Printf("HERE = %v, %v", text, err)
 	if err != nil {
 		cards := WriteAuthCard(*clientId)
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
