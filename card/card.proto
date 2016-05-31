@@ -16,6 +16,7 @@ message Card {
 	     NONE = 0;
              VISITURL = 1;
 	     RATING = 2;
+             RATE = 3;
 	}
 	Action action = 3;
 
