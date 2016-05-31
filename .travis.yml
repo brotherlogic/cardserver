@@ -9,3 +9,4 @@ before_install:
 
 script:
 - fgt golint $(find ./ | grep .go$ | grep -v card.pb.go)
+- go test -v ./...
