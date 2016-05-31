@@ -10,8 +10,8 @@ import pb "github.com/brotherlogic/cardserver/card"
 func prepend(str string) string {
 	if len(str) == 1 {
 		return "0" + str
-	} 
-		return str
+	}
+	return str
 }
 
 func build() pb.CardList {
@@ -22,6 +22,7 @@ func build() pb.CardList {
 		card := pb.Card{}
 		card.Text = prepend(strconv.Itoa(now.Hour())) + ":" + prepend(strconv.Itoa(now.Minute()))
 		card.Hash = "timecard" + card.Text
+		card.Priority = 1
 		card.ApplicationDate = now.Unix()
 
 		//Add a minute
