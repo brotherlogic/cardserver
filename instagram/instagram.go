@@ -131,6 +131,7 @@ func writeInstagramCards(user string, accessCode string) pb.CardList {
 		card := pb.Card{}
 		card.Text = caption
 		card.Image = image
+		card.Priority = 20
 		cards.Cards = append(cards.Cards, &card)
 	}
 	return cards
