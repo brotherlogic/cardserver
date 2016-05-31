@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	pb "github.com/brotherlogic/cardserver/card"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -20,7 +21,7 @@ func TestPriority(t *testing.T) {
 	}
 	card3 := pb.Card{
 		Priority: 5,
-		Hash:     "60",
+		Hash:     "5",
 	}
 
 	cardlist := pb.CardList{}
@@ -38,8 +39,9 @@ func TestPriority(t *testing.T) {
 		t.Errorf("Error getting cards %v", err)
 	}
 
+	fmt.Printf("CARDS = %v", cards.Cards)
 	for i := 1; i < len(cards.Cards); i++ {
-		if cards.Cards[i].Priority < cards.Cards[i-1].Priority {
+		if cards.Cards[i].Priority > cards.Cards[i-1].Priority {
 			t.Errorf("Cards are not priority sorted %v -> %v", cards.Cards[i], cards.Cards[i-1])
 		}
 	}
