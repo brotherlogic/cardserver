@@ -132,6 +132,7 @@ func writeInstagramCards(user string, accessCode string) pb.CardList {
 		card.Text = caption
 		card.Image = image
 		card.Priority = 20
+		card.Hash = pic["id"].(string)
 		cards.Cards = append(cards.Cards, &card)
 	}
 	return cards
