@@ -12,12 +12,15 @@ import (
 func TestPriority(t *testing.T) {
 	card1 := pb.Card{
 		Priority: 10,
+		Hash:     "10",
 	}
 	card2 := pb.Card{
 		Priority: 50,
+		Hash:     "50",
 	}
 	card3 := pb.Card{
 		Priority: 5,
+		Hash:     "60",
 	}
 
 	cardlist := pb.CardList{}
@@ -50,8 +53,8 @@ func TestDedup(t *testing.T) {
 		Hash: "ditto",
 	}
 	card3 := pb.Card{
-	      Hash: "madeup",
-	      }
+		Hash: "madeup",
+	}
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card1)
@@ -66,10 +69,10 @@ func TestDedup(t *testing.T) {
 	cards, err = s.GetCards(context.Background(), &pb.Empty{})
 	if err != nil {
 		t.Errorf("Error getting cards %v", err)
-	}			
+	}
 	if len(cards.Cards) != 2 {
-	   t.Errorf("Cards have not been deduped")
-	   }
+		t.Errorf("Cards have not been deduped")
+	}
 }
 
 func TestAdd(t *testing.T) {
@@ -91,11 +94,11 @@ func TestAdd(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-     card := pb.Card{}
-     card.Hash = "todelete"
-     s := InitServer()
+	card := pb.Card{}
+	card.Hash = "todelete"
+	s := InitServer()
 
-     cardlist := pb.CardList{}
+	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
 
 	cards, err := s.AddCards(context.Background(), &cardlist)
@@ -108,9 +111,9 @@ func TestDelete(t *testing.T) {
 		t.Errorf("Not enough cards: %v", len(cards.Cards))
 	}
 
-     deleteReq := pb.DeleteRequest{}
-     deleteReq.Hash = "todelete"
-     cards, err = s.DeleteCards(context.Background(), &deleteReq)
+	deleteReq := pb.DeleteRequest{}
+	deleteReq.Hash = "todelete"
+	cards, err = s.DeleteCards(context.Background(), &deleteReq)
 
 	cards, err = s.GetCards(context.Background(), &pb.Empty{})
 	if err != nil {
@@ -121,7 +124,6 @@ func TestDelete(t *testing.T) {
 		t.Errorf("Card has not been deleted: %v:%v", len(cards.Cards), cards.Cards)
 	}
 
-     
 }
 
 func TestRemoveStale(t *testing.T) {
