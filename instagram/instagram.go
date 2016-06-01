@@ -93,6 +93,35 @@ func writeAuthCard(client string) pb.CardList {
 	return cards
 }
 
+func isImageLiked(mediaID string, accessToken string) bool {
+	likesURL := "https://api.instagram.com/v1/media/" + mediaID + "/likes?access_token=" + accessToken
+	resp, err := http.Get(likesURL)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	var dat map[string]interface{}
+	err = json.Unmarshal([]byte(body), &dat)
+	if err != nil {
+		panic(nil)
+	}
+
+	var likes []interface{}
+	likes = dat["data"].([]interface{})
+	for _, persono := range likes {
+		person := persono.(map[string]interface{})
+		if person["username"].(string) == "brotherlogic" {
+			return true
+		}
+	}
+
+	return false
+}
+
 func writeInstagramCards(user string, accessCode string) pb.CardList {
 
 	cards := pb.CardList{}
@@ -128,12 +157,16 @@ func writeInstagramCards(user string, accessCode string) pb.CardList {
 		images = pic["images"].(map[string]interface{})
 		image := images["standard_resolution"].(map[string]interface{})["url"].(string)
 
-		card := pb.Card{}
-		card.Text = caption
-		card.Image = image
-		card.Priority = 20
-		card.Hash = pic["id"].(string)
-		cards.Cards = append(cards.Cards, &card)
+		liked := isImageLiked(pic["id"].(string), accessCode)
+
+		if !liked {
+			card := pb.Card{}
+			card.Text = caption
+			card.Image = image
+			card.Priority = 20
+			card.Hash = pic["id"].(string)
+			cards.Cards = append(cards.Cards, &card)
+		}
 	}
 	return cards
 }
