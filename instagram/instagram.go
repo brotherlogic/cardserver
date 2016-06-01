@@ -159,6 +159,7 @@ func writeInstagramCards(user string, accessCode string) pb.CardList {
 
 		liked := isImageLiked(pic["id"].(string), accessCode)
 
+		log.Printf("%v -> %v", pic["id"].(string), liked)
 		if !liked {
 			card := pb.Card{}
 			card.Text = caption
