@@ -59,6 +59,7 @@ func readCards(client string, secret string, accessToken string) {
 			accessCode = processAccessCode(client, secret, code)
 		} else if card.Action == pb.Card_RATE {
 			urlv := processInstagramRating(*card) + "?access_token=" + accessToken
+			log.Printf("POSTing request to %v", urlv)
 			resp, err := http.Post(urlv, "", nil)
 			if err != nil {
 				defer resp.Body.Close()
