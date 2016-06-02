@@ -137,43 +137,45 @@ func writeInstagramCards(user string, accessCode string) pb.CardList {
 	urlv := "https://api.instagram.com/v1/users/" + user + "/media/recent/?access_token=" + accessCode + "&count=10"
 	resp, err := http.Get(urlv)
 	if err != nil {
-		panic(nil)
+		panic(err)
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		panic(nil)
+		panic(err)
 	}
 	var dat map[string]interface{}
 	err = json.Unmarshal([]byte(body), &dat)
 	if err != nil {
-		panic(nil)
+		panic(err)
 	}
 
 	var pics []interface{}
-	pics = dat["data"].([]interface{})
+	if dat["data"] != nil {
+		pics = dat["data"].([]interface{})
 
-	for _, pico := range pics {
-		pic := pico.(map[string]interface{})
-		captionObj := pic["caption"]
-		caption := ""
-		if captionObj != nil {
-			caption = captionObj.(map[string]interface{})["text"].(string)
-		}
-		var images map[string]interface{}
-		images = pic["images"].(map[string]interface{})
-		image := images["standard_resolution"].(map[string]interface{})["url"].(string)
+		for _, pico := range pics {
+			pic := pico.(map[string]interface{})
+			captionObj := pic["caption"]
+			caption := ""
+			if captionObj != nil {
+				caption = captionObj.(map[string]interface{})["text"].(string)
+			}
+			var images map[string]interface{}
+			images = pic["images"].(map[string]interface{})
+			image := images["standard_resolution"].(map[string]interface{})["url"].(string)
 
-		liked := isImageLiked(pic["id"].(string), accessCode)
+			liked := isImageLiked(pic["id"].(string), accessCode)
 
-		if !liked {
-			card := pb.Card{}
-			card.Text = caption
-			card.Image = image
-			card.Priority = 20
-			card.Hash = pic["id"].(string)
-			cards.Cards = append(cards.Cards, &card)
+			if !liked {
+				card := pb.Card{}
+				card.Text = caption
+				card.Image = image
+				card.Priority = 20
+				card.Hash = pic["id"].(string)
+				cards.Cards = append(cards.Cards, &card)
+			}
 		}
 	}
 	return cards
