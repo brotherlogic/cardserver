@@ -194,6 +194,7 @@ func main() {
 	text, err := ioutil.ReadFile("access_code")
 
 	if err != nil {
+		log.Printf("No Auth")
 		cards := writeAuthCard(*clientID)
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 
@@ -211,6 +212,7 @@ func main() {
 			log.Printf("Error unmarshalling %v with %v and %v", string(text), *clientID, *secret)
 			panic(err)
 		}
+		log.Printf("Loading from %v", string(text))
 		if dat == nil || dat["access_token"] == nil {
 			log.Printf("Cannot get access token: %v from %v given $v,%v", dat, string(text), *clientID, *secret)
 		}
