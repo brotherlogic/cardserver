@@ -43,7 +43,7 @@ func visitURL(urlv string, accessToken string) []byte {
 	return body
 }
 
-func readCards(client string, secret string) {
+func readCards(client string, secret string, accessToken string) {
 	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -57,6 +57,14 @@ func readCards(client string, secret string) {
 		if card.Hash == "instagramauthresp" {
 			code := card.Text[11:43]
 			accessCode = processAccessCode(client, secret, code)
+		} else if card.Action == pb.Card_RATE {
+			urlv := processInstagramRating(*card) + "?access_token=" + accessToken
+			resp, err := http.Post(urlv, "", nil)
+			if err != nil {
+				defer resp.Body.Close()
+				body, _ := ioutil.ReadAll(resp.Body)
+				log.Printf("Body = %v", body)
+			}
 		}
 	}
 
@@ -188,7 +196,7 @@ func main() {
 			log.Printf("Problem adding cards %v", err)
 		}
 
-		readCards(*clientID, *secret)
+		readCards(*clientID, *secret, string(text))
 	} else {
 		var dat map[string]interface{}
 		if err := json.Unmarshal([]byte(text), &dat); err != nil {
