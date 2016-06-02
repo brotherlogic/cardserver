@@ -173,6 +173,7 @@ func writeInstagramCards(user string, accessCode string) pb.CardList {
 
 			liked := isImageLiked(pic["id"].(string), accessCode)
 
+			log.Printf("%v is %v", pic["id"].(string), liked)
 			if !liked {
 				card := pb.Card{}
 				card.Text = caption
@@ -213,6 +214,8 @@ func main() {
 		if dat == nil || dat["access_token"] == nil {
 			log.Printf("Cannot get access token: %v from %v given $v,%v", dat, string(text), *clientID, *secret)
 		}
+		//Process any likes
+		readCards(*clientID, *secret, string(text))
 		cards := writeInstagramCards("50987102", dat["access_token"].(string))
 		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 
