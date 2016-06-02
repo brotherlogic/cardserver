@@ -151,8 +151,12 @@ func writeInstagramCards(user string, accessCode string) pb.CardList {
 		panic(err)
 	}
 
+	if dat == nil {
+		panic("ERROR HERE = " + string(body))
+	}
+
 	var pics []interface{}
-	if dat["data"] != nil {
+	if dat != nil && dat["data"] != nil {
 		pics = dat["data"].([]interface{})
 
 		for _, pico := range pics {
