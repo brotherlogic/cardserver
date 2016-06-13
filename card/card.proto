@@ -37,6 +37,12 @@ message Card {
 
 	// Metadata for the action
 	repeated string action_metadata = 9;
+
+        enum Channel {
+             MUSIC = 0;
+             ISSUES = 1;
+        }
+        Channel channel = 10;
 }
 
 message DeleteRequest {
