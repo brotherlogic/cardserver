@@ -17,6 +17,7 @@ message Card {
              VISITURL = 1;
 	     RATING = 2;
              RATE = 3;
+	     DISMISS = 4;
 	}
 	Action action = 3;
 
