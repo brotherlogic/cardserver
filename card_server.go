@@ -21,15 +21,15 @@ type Server struct {
 	cards *pb.CardList
 }
 
-// Register Registers this server
-func (s *Server) Register(server *grpc.Server) {
+// DoRegister Registers this server
+func (s *Server) DoRegister(server *grpc.Server) {
 	pb.RegisterCardServiceServer(server, s)
 }
 
 // InitServer Prepares the server to run
 func InitServer() Server {
 	s := Server{&goserver.GoServer{}, &pb.CardList{}}
-	s.SetRegisterable(&s)
+	s.Register = &s
 	return s
 }
 
@@ -95,7 +95,9 @@ func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, e
 
 // DeleteCards removes cards from the server
 func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
+	log.Printf("Pre delete %v", s.cards)
 	s.cards = s.remove(in.Hash)
+	log.Printf("Post delete %v", s.cards)
 	return s.cards, nil
 }
 
