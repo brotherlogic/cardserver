@@ -1,14 +1,14 @@
 package main
 
 import (
+	"github.com/brotherlogic/goserver"
+	"google.golang.org/grpc"
 	"log"
-	"net"
 	"sort"
 	"time"
 
 	pb "github.com/brotherlogic/cardserver/card"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 )
 
 const (
@@ -17,13 +17,19 @@ const (
 
 // Server The server to use
 type Server struct {
+	*goserver.GoServer
 	cards *pb.CardList
+}
+
+// Register Registers this server
+func (s *Server) Register(server *grpc.Server) {
+	pb.RegisterCardServiceServer(server, s)
 }
 
 // InitServer Prepares the server to run
 func InitServer() Server {
-	s := Server{}
-	s.cards = &pb.CardList{}
+	s := Server{&goserver.GoServer{}, &pb.CardList{}}
+	s.SetRegisterable(&s)
 	return s
 }
 
@@ -94,13 +100,7 @@ func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.Car
 }
 
 func main() {
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.Fatalf("Failed to listen on %v", err)
-	}
-
-	s := grpc.NewServer()
 	server := InitServer()
-	pb.RegisterCardServiceServer(s, &server)
-	s.Serve(lis)
+	server.RegisterServer("cardserver", false)
+	server.Serve()
 }
