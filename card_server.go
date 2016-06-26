@@ -103,6 +103,7 @@ func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.Car
 
 func main() {
 	server := InitServer()
+	server.PrepServer()
 	server.RegisterServer("cardserver", false)
 	server.Serve()
 }
