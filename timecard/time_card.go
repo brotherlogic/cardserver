@@ -37,7 +37,7 @@ func build() pb.CardList {
 
 func main() {
 	cards := build()
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:50055", grpc.WithInsecure())
 
 	defer conn.Close()
 	client := pb.NewCardServiceClient(conn)
