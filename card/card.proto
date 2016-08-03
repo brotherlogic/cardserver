@@ -39,11 +39,15 @@ message Card {
 	// Metadata for the action
 	repeated string action_metadata = 9;
 
+        // The channel in which this card is filed       
         enum Channel {
              MUSIC = 0;
              ISSUES = 1;
         }
         Channel channel = 10;
+
+        // The Card which should be written by this card
+        Card result = 11;
 }
 
 message DeleteRequest {
