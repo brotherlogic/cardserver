@@ -98,10 +98,13 @@ func TestAdd(t *testing.T) {
 func TestDelete(t *testing.T) {
 	card := pb.Card{}
 	card.Hash = "todelete"
+	card2 := pb.Card{}
+	card2.Hash = "toretain"
 	s := InitServer()
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
+	cardlist.Cards = append(cardlist.Cards, &card2)
 
 	cards, err := s.AddCards(context.Background(), &cardlist)
 
@@ -109,7 +112,7 @@ func TestDelete(t *testing.T) {
 		t.Errorf("Error in adding a card: %v", err)
 	}
 
-	if len(cards.Cards) != 1 {
+	if len(cards.Cards) != 2 {
 		t.Errorf("Not enough cards: %v", len(cards.Cards))
 	}
 
@@ -122,8 +125,12 @@ func TestDelete(t *testing.T) {
 		t.Errorf("Error getting cards: %v", err)
 	}
 
-	if len(cards.Cards) != 0 {
-		t.Errorf("Card has not been deleted: %v:%v", len(cards.Cards), cards.Cards)
+	if len(cards.Cards) != 1 {
+		t.Errorf("Card has not been deleted correctly: %v:%v", len(cards.Cards), cards.Cards)
+	}
+
+	if cards.Cards[0].Hash != "toretain" {
+		t.Errorf("Card has not been retained correctly: %v", cards.Cards)
 	}
 
 }

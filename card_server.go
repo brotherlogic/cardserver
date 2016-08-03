@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/brotherlogic/goserver"
-	"google.golang.org/grpc"
 	"log"
 	"sort"
 	"time"
@@ -19,11 +18,6 @@ const (
 type Server struct {
 	*goserver.GoServer
 	cards *pb.CardList
-}
-
-// DoRegister Registers this server
-func (s *Server) DoRegister(server *grpc.Server) {
-	pb.RegisterCardServiceServer(server, s)
 }
 
 // InitServer Prepares the server to run
@@ -99,11 +93,4 @@ func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.Car
 	s.cards = s.remove(in.Hash)
 	log.Printf("Post delete %v", s.cards)
 	return s.cards, nil
-}
-
-func main() {
-	server := InitServer()
-	server.PrepServer()
-	server.RegisterServer("cardserver", false)
-	server.Serve()
 }
