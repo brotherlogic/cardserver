@@ -5,7 +5,7 @@ branches:
       - master
 
 go:
-  - 1.5
+  - 1.7
 
 before_install:
 - go get github.com/golang/lint/golint
@@ -20,4 +20,4 @@ before_install:
 
 script:
 - fgt golint $(find ./ | grep .go$ | grep -v card.pb.go)
-- $HOME/gopath/bin/goveralls -service=travis-ci -ignore=card_server_network.go github.com/brotherlogic/cardserver
+- $HOME/gopath/bin/goveralls -service=travis-ci -ignore=card_server_network.go -package github.com/brotherlogic/cardserver
