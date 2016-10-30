@@ -14,9 +14,9 @@ message Card {
 	// The action to take along with the card
 	enum Action {
 	     NONE = 0;
-             VISITURL = 1;
+       VISITURL = 1;
 	     RATING = 2;
-             RATE = 3;
+  	 	 RATE = 3;
 	     DISMISS = 4;
 	}
 	Action action = 3;
@@ -39,7 +39,7 @@ message Card {
 	// Metadata for the action
 	repeated string action_metadata = 9;
 
-        // The channel in which this card is filed       
+        // The channel in which this card is filed
         enum Channel {
              MUSIC = 0;
              ISSUES = 1;
