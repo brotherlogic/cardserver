@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	pb "github.com/brotherlogic/cardserver/card"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"net"
 	"testing"
 	"time"
+
+	pb "github.com/brotherlogic/cardserver/card"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 func TestPriority(t *testing.T) {
@@ -92,6 +93,44 @@ func TestAdd(t *testing.T) {
 
 	if len(cards.Cards) != 1 {
 		t.Errorf("Not enough cards: %v", len(cards.Cards))
+	}
+}
+
+func TestDeletePrefix(t *testing.T) {
+	card := pb.Card{}
+	card.Hash = "deleteone"
+	card2 := pb.Card{}
+	card2.Hash = "deletetwo"
+	card3 := pb.Card{}
+	card3.Hash = "savethis"
+
+	s := InitServer()
+
+	cardlist := pb.CardList{}
+	cardlist.Cards = append(cardlist.Cards, &card)
+	cardlist.Cards = append(cardlist.Cards, &card2)
+	cardlist.Cards = append(cardlist.Cards, &card3)
+
+	cards, err := s.AddCards(context.Background(), &cardlist)
+	if err != nil {
+		t.Errorf("Error in adding cards: %v", err)
+	}
+
+	if len(cards.Cards) != 3 {
+		t.Errorf("Error adding card: %v", cards)
+	}
+
+	deleteReq := pb.DeleteRequest{}
+	deleteReq.HashPrefix = "delete"
+	cards, err = s.DeleteCards(context.Background(), &deleteReq)
+	cards, err = s.GetCards(context.Background(), &pb.Empty{})
+
+	if len(cards.Cards) != 1 {
+		t.Errorf("Card has not been deleted correctly: %v:%v", len(cards.Cards), cards.Cards)
+	}
+
+	if cards.Cards[0].Hash != "savethis" {
+		t.Errorf("Card has not been retained correctly: %v", cards.Cards)
 	}
 }
 

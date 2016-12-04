@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/brotherlogic/goserver"
 	"log"
 	"sort"
+	"strings"
 	"time"
+
+	"github.com/brotherlogic/goserver"
 
 	pb "github.com/brotherlogic/cardserver/card"
 	"golang.org/x/net/context"
@@ -25,6 +27,16 @@ func InitServer() Server {
 	s := Server{&goserver.GoServer{}, &pb.CardList{}}
 	s.Register = &s
 	return s
+}
+
+func (s *Server) removePrefix(prefix string) *pb.CardList {
+	filteredCards := &pb.CardList{}
+	for _, card := range s.cards.Cards {
+		if !strings.HasPrefix(card.Hash, prefix) {
+			filteredCards.Cards = append(filteredCards.Cards, card)
+		}
+	}
+	return filteredCards
 }
 
 func (s *Server) remove(hash string) *pb.CardList {
@@ -90,7 +102,11 @@ func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, e
 // DeleteCards removes cards from the server
 func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
 	log.Printf("Pre delete %v", s.cards)
-	s.cards = s.remove(in.Hash)
+	if in.HashPrefix == "" {
+		s.cards = s.remove(in.Hash)
+	} else {
+		s.cards = s.removePrefix(in.HashPrefix)
+	}
 	log.Printf("Post delete %v", s.cards)
 	return s.cards, nil
 }

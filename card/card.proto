@@ -52,6 +52,7 @@ message Card {
 
 message DeleteRequest {
 	string hash = 1;
+	string hash_prefix = 2;
 }
 
 message CardList {
