@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"sort"
 	"strings"
 	"time"
@@ -67,7 +66,6 @@ func (s *Server) removeStaleCards() {
 	filteredCards := &pb.CardList{}
 	for _, card := range s.cards.Cards {
 		if card.ExpirationDate <= 0 || card.ExpirationDate >= time.Now().Unix() {
-			log.Printf("Not filtering %v (time is %v)", card, time.Now().Unix())
 			filteredCards.Cards = append(filteredCards.Cards, card)
 		}
 	}
@@ -101,12 +99,10 @@ func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, e
 
 // DeleteCards removes cards from the server
 func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
-	log.Printf("Pre delete %v", s.cards)
 	if in.Hash != "" {
 		s.cards = s.remove(in.Hash)
 	} else {
 		s.cards = s.removePrefix(in.HashPrefix)
 	}
-	log.Printf("Post delete %v", s.cards)
 	return s.cards, nil
 }
