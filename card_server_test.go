@@ -6,10 +6,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/brotherlogic/keystore/client"
+
 	pb "github.com/brotherlogic/cardserver/card"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
+
+func InitTestServer() Server {
+	s := InitServer()
+	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testing")
+	return s
+}
 
 func TestPriority(t *testing.T) {
 	card1 := pb.Card{
@@ -30,7 +38,7 @@ func TestPriority(t *testing.T) {
 	cardlist.Cards = append(cardlist.Cards, &card2)
 	cardlist.Cards = append(cardlist.Cards, &card3)
 
-	s := InitServer()
+	s := InitTestServer()
 	cards, err := s.AddCards(context.Background(), &cardlist)
 	if err != nil {
 		t.Errorf("Error adding cards %v", err)
@@ -64,7 +72,7 @@ func TestDedup(t *testing.T) {
 	cardlist.Cards = append(cardlist.Cards, &card2)
 	cardlist.Cards = append(cardlist.Cards, &card3)
 
-	s := InitServer()
+	s := InitTestServer()
 	cards, err := s.AddCards(context.Background(), &cardlist)
 	if err != nil {
 		t.Errorf("Error adding cards %v", err)
@@ -80,7 +88,7 @@ func TestDedup(t *testing.T) {
 
 func TestAdd(t *testing.T) {
 	card := pb.Card{}
-	s := InitServer()
+	s := InitTestServer()
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -104,7 +112,7 @@ func TestDeletePrefix(t *testing.T) {
 	card3 := pb.Card{}
 	card3.Hash = "savethis"
 
-	s := InitServer()
+	s := InitTestServer()
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -148,7 +156,7 @@ func TestDeleteAll(t *testing.T) {
 	card3 := pb.Card{}
 	card3.Hash = "savethis"
 
-	s := InitServer()
+	s := InitTestServer()
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -185,7 +193,7 @@ func TestDelete(t *testing.T) {
 	card.Hash = "todelete"
 	card2 := pb.Card{}
 	card2.Hash = "toretain"
-	s := InitServer()
+	s := InitTestServer()
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -222,7 +230,7 @@ func TestDelete(t *testing.T) {
 
 func TestRemoveStale(t *testing.T) {
 	card := pb.Card{ExpirationDate: time.Now().Unix() - 10}
-	s := InitServer()
+	s := InitTestServer()
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -254,7 +262,7 @@ func TestRunServer(t *testing.T) {
 			t.Errorf("Error opening port up")
 		}
 		s := grpc.NewServer()
-		server := InitServer()
+		server := InitTestServer()
 		pb.RegisterCardServiceServer(s, &server)
 		s.Serve(lis)
 	}()
