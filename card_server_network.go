@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/brotherlogic/keystore/client"
 	"google.golang.org/grpc"
 
 	pb "github.com/brotherlogic/cardserver/card"
@@ -23,6 +24,7 @@ func (s *Server) SaveCardList() {
 
 func main() {
 	server := InitServer()
+	server.GoServer.KSclient = *keystoreclient.GetClient()
 	server.PrepServer()
 	server.RegisterServer("cardserver", false)
 	server.Serve()
