@@ -16,6 +16,11 @@ func (s *Server) ReportHealth() bool {
 	return true
 }
 
+// SaveCardList stores the cardlist
+func (s *Server) SaveCardList() {
+	s.Save("github.com/brotherlogic/cardserver/cards", s.cards)
+}
+
 func main() {
 	server := InitServer()
 	server.PrepServer()
