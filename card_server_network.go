@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/brotherlogic/keystore/client"
 	"google.golang.org/grpc"
 
@@ -20,6 +22,16 @@ func (s *Server) ReportHealth() bool {
 // SaveCardList stores the cardlist
 func (s *Server) SaveCardList() {
 	s.Save("github.com/brotherlogic/cardserver/cards", s.cards)
+}
+
+func (s *Server) prepareList() {
+	cl := &pb.CardList{}
+	rc, err := s.Read("github.com/brotherlogic/cardserver/cards", cl)
+	if err != nil {
+		log.Printf("Failed to read cards! %v", err)
+	} else {
+		s.cards = rc.(*pb.CardList)
+	}
 }
 
 func main() {
