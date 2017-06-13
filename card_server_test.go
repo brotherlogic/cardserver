@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 	"testing"
 	"time"
 
@@ -13,9 +14,14 @@ import (
 	"google.golang.org/grpc"
 )
 
-func InitTestServer() Server {
+func InitTestServer(clear bool) Server {
+	if clear {
+		os.RemoveAll(".testing")
+	}
+
 	s := InitServer()
-	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testing")
+	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testing/")
+	s.prepareList()
 	return s
 }
 
@@ -38,7 +44,7 @@ func TestPriority(t *testing.T) {
 	cardlist.Cards = append(cardlist.Cards, &card2)
 	cardlist.Cards = append(cardlist.Cards, &card3)
 
-	s := InitTestServer()
+	s := InitTestServer(true)
 	cards, err := s.AddCards(context.Background(), &cardlist)
 	if err != nil {
 		t.Errorf("Error adding cards %v", err)
@@ -72,7 +78,7 @@ func TestDedup(t *testing.T) {
 	cardlist.Cards = append(cardlist.Cards, &card2)
 	cardlist.Cards = append(cardlist.Cards, &card3)
 
-	s := InitTestServer()
+	s := InitTestServer(true)
 	cards, err := s.AddCards(context.Background(), &cardlist)
 	if err != nil {
 		t.Errorf("Error adding cards %v", err)
@@ -88,7 +94,7 @@ func TestDedup(t *testing.T) {
 
 func TestAdd(t *testing.T) {
 	card := pb.Card{}
-	s := InitTestServer()
+	s := InitTestServer(true)
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -112,7 +118,7 @@ func TestDeletePrefix(t *testing.T) {
 	card3 := pb.Card{}
 	card3.Hash = "savethis"
 
-	s := InitTestServer()
+	s := InitTestServer(true)
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -156,7 +162,7 @@ func TestDeleteAll(t *testing.T) {
 	card3 := pb.Card{}
 	card3.Hash = "savethis"
 
-	s := InitTestServer()
+	s := InitTestServer(true)
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -193,7 +199,7 @@ func TestDelete(t *testing.T) {
 	card.Hash = "todelete"
 	card2 := pb.Card{}
 	card2.Hash = "toretain"
-	s := InitTestServer()
+	s := InitTestServer(true)
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -211,7 +217,7 @@ func TestDelete(t *testing.T) {
 
 	deleteReq := pb.DeleteRequest{}
 	deleteReq.Hash = "todelete"
-	cards, err = s.DeleteCards(context.Background(), &deleteReq)
+	cards, _ = s.DeleteCards(context.Background(), &deleteReq)
 
 	cards, err = s.GetCards(context.Background(), &pb.Empty{})
 	if err != nil {
@@ -225,12 +231,38 @@ func TestDelete(t *testing.T) {
 	if cards.Cards[0].Hash != "toretain" {
 		t.Errorf("Card has not been retained correctly: %v", cards.Cards)
 	}
+}
 
+func TestRestart(t *testing.T) {
+	card := pb.Card{Text: "What the", Hash: "hello"}
+	s := InitTestServer(true)
+	cardlist := pb.CardList{}
+	cardlist.Cards = append(cardlist.Cards, &card)
+
+	cards, err := s.AddCards(context.Background(), &cardlist)
+
+	if err != nil {
+		t.Errorf("Error adding card: %v", err)
+	}
+
+	if len(cards.Cards) != 1 {
+		t.Errorf("Card has not beed added: %v", len(cards.Cards))
+	}
+
+	s2 := InitTestServer(false)
+	cards, err = s2.GetCards(context.Background(), &pb.Empty{})
+	if err != nil {
+		t.Errorf("Error getting cards: %v", err)
+	}
+
+	if len(cards.Cards) != 1 {
+		t.Errorf("Cards have not been returned: %v", cards)
+	}
 }
 
 func TestRemoveStale(t *testing.T) {
 	card := pb.Card{ExpirationDate: time.Now().Unix() - 10}
-	s := InitTestServer()
+	s := InitTestServer(true)
 
 	cardlist := pb.CardList{}
 	cardlist.Cards = append(cardlist.Cards, &card)
@@ -262,7 +294,7 @@ func TestRunServer(t *testing.T) {
 			t.Errorf("Error opening port up")
 		}
 		s := grpc.NewServer()
-		server := InitTestServer()
+		server := InitTestServer(true)
 		pb.RegisterCardServiceServer(s, &server)
 		s.Serve(lis)
 	}()
