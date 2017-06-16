@@ -19,6 +19,14 @@ func (s *Server) ReportHealth() bool {
 	return true
 }
 
+// Mote promotes this server
+func (s *Server) Mote(master bool) error {
+	if master {
+		s.prepareList()
+	}
+	return nil
+}
+
 // SaveCardList stores the cardlist
 func (s *Server) SaveCardList() {
 	s.Save("github.com/brotherlogic/cardserver/cards", s.cards)
