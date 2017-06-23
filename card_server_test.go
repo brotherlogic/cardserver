@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"testing"
 	"time"
@@ -11,10 +10,9 @@ import (
 
 	pb "github.com/brotherlogic/cardserver/card"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 )
 
-func InitTestServer(clear bool) Server {
+func InitTestServer(clear bool) *Server {
 	if clear {
 		os.RemoveAll(".testing")
 	}
@@ -285,50 +283,4 @@ func TestRemoveStale(t *testing.T) {
 	if len(cards.Cards) != 0 {
 		t.Errorf("Card has not been removed: %v:%v", len(cards.Cards), cards.Cards)
 	}
-}
-
-func TestRunServer(t *testing.T) {
-	go func() {
-		lis, err := net.Listen("tcp", ":50051")
-		if err != nil {
-			t.Errorf("Error opening port up")
-		}
-		s := grpc.NewServer()
-		server := InitTestServer(true)
-		pb.RegisterCardServiceServer(s, &server)
-		s.Serve(lis)
-	}()
-
-	go func() {
-		time.Sleep(5 * time.Second)
-		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
-		if err != nil {
-			t.Errorf("Error connecting to port")
-		}
-		defer conn.Close()
-		client := pb.NewCardServiceClient(conn)
-
-		card := pb.Card{}
-		card.Text = "Testing"
-		cardlist := pb.CardList{}
-		cardlist.Cards = append(cardlist.Cards, &card)
-
-		r, err := client.AddCards(context.Background(), &cardlist)
-		if err != nil {
-			t.Errorf("Error adding cards: %v", err)
-		}
-
-		r, err = client.GetCards(context.Background(), &pb.Empty{})
-		if err != nil {
-			t.Errorf("Error getting cards: %v", err)
-		}
-		if len(r.Cards) != 1 {
-			t.Errorf("Not enough cards: %v", r)
-		}
-		if r.Cards[0].Text != "Testing" {
-			t.Errorf("Card read is wrong: %v", r)
-		}
-	}()
-
-	time.Sleep(10 * time.Second)
 }
