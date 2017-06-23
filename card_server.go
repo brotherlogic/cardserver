@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sort"
 	"strings"
 	"time"
@@ -93,6 +94,7 @@ func (s *Server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, erro
 
 // AddCards adds cards to the server
 func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, error) {
+	log.Printf("ADDING CARDS: %v", in)
 	s.cards.Cards = append(s.cards.Cards, in.Cards...)
 	s.SaveCardList()
 	return s.cards, nil
@@ -100,6 +102,7 @@ func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, e
 
 // DeleteCards removes cards from the server
 func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
+	log.Printf("DELETE: %v", in)
 	if in.Hash != "" {
 		s.cards = s.remove(in.Hash)
 	} else {

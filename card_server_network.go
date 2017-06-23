@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/brotherlogic/keystore/client"
 	"google.golang.org/grpc"
 
 	pb "github.com/brotherlogic/cardserver/card"
+	pbdi "github.com/brotherlogic/discovery/proto"
 )
 
 // DoRegister Registers this server
@@ -32,9 +34,36 @@ func (s *Server) SaveCardList() {
 	s.Save("github.com/brotherlogic/cardserver/cards", s.cards)
 }
 
+func findServer(name string) (string, int) {
+	conn, err := grpc.Dial("192.168.86.64:50055", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Cannot reach discover server: %v (trying to discover %v)", err, name)
+	}
+	defer conn.Close()
+
+	registry := pbdi.NewDiscoveryServiceClient(conn)
+	rs, err := registry.ListAllServices(context.Background(), &pbdi.Empty{})
+
+	if err != nil {
+		log.Fatalf("Failure to list: %v", err)
+	}
+
+	for _, r := range rs.Services {
+		if r.Name == name {
+			log.Printf("%v -> %v", name, r)
+			return r.Ip, int(r.Port)
+		}
+	}
+
+	log.Printf("No Cardserver running")
+
+	return "", -1
+}
+
 func (s *Server) prepareList() {
 	cl := &pb.CardList{}
 	rc, err := s.Read("github.com/brotherlogic/cardserver/cards", cl)
+	log.Printf("READ %v", rc)
 	if err != nil {
 		log.Printf("Failed to read cards! %v", err)
 	} else {
@@ -44,8 +73,9 @@ func (s *Server) prepareList() {
 
 func main() {
 	server := InitServer()
-	server.GoServer.KSclient = *keystoreclient.GetClient()
+	server.GoServer.KSclient = *keystoreclient.GetClient(findServer)
 	server.PrepServer()
 	server.RegisterServer("cardserver", false)
+	server.prepareList()
 	server.Serve()
 }

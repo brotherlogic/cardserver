@@ -14,11 +14,18 @@ import (
 )
 
 func findServer(name string) (string, int) {
-	conn, _ := grpc.Dial("192.168.86.64:50055", grpc.WithInsecure())
+	conn, err := grpc.Dial("192.168.86.64:50055", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Cannot reach discover server: %v (trying to discover %v)", err, name)
+	}
 	defer conn.Close()
 
 	registry := pbdi.NewDiscoveryServiceClient(conn)
-	rs, _ := registry.ListAllServices(context.Background(), &pbdi.Empty{})
+	rs, err := registry.ListAllServices(context.Background(), &pbdi.Empty{})
+
+	if err != nil {
+		log.Fatalf("Failure to list: %v", err)
+	}
 
 	for _, r := range rs.Services {
 		if r.Name == name {
@@ -26,6 +33,8 @@ func findServer(name string) (string, int) {
 			return r.Ip, int(r.Port)
 		}
 	}
+
+	log.Printf("No Cardserver running")
 
 	return "", -1
 }
@@ -50,16 +59,19 @@ func main() {
 		case "list":
 			host, port := findServer("cardserver")
 
-			conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
-			defer conn.Close()
+			if port > 0 {
 
-			registry := pb.NewCardServiceClient(conn)
-			rs, err := registry.GetCards(context.Background(), &pb.Empty{})
-			if err != nil {
-				log.Printf("Error deleting cards: %v", err)
-			}
-			for _, res := range rs.Cards {
-				log.Printf("CARD: %v", res)
+				conn, _ := grpc.Dial(host+":"+strconv.Itoa(port), grpc.WithInsecure())
+				defer conn.Close()
+
+				registry := pb.NewCardServiceClient(conn)
+				rs, err := registry.GetCards(context.Background(), &pb.Empty{})
+				if err != nil {
+					log.Printf("Error deleting cards: %v", err)
+				}
+				for _, res := range rs.Cards {
+					log.Printf("CARD: %v", res)
+				}
 			}
 		}
 	}
