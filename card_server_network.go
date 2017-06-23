@@ -31,7 +31,7 @@ func (s *Server) Mote(master bool) error {
 
 // SaveCardList stores the cardlist
 func (s *Server) SaveCardList() {
-	s.Save("github.com/brotherlogic/cardserver/cards", s.cards)
+	s.Save(key, s.cards)
 }
 
 func findServer(name string) (string, int) {
@@ -62,7 +62,7 @@ func findServer(name string) (string, int) {
 
 func (s *Server) prepareList() {
 	cl := &pb.CardList{}
-	rc, err := s.Read("github.com/brotherlogic/cardserver/cards", cl)
+	rc, err := s.Read(key, cl)
 	log.Printf("READ %v", rc)
 	if err != nil {
 		log.Printf("Failed to read cards! %v", err)
