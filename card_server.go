@@ -24,9 +24,9 @@ type Server struct {
 }
 
 // InitServer Prepares the server to run
-func InitServer() Server {
-	s := Server{&goserver.GoServer{}, &pb.CardList{}}
-	s.Register = &s
+func InitServer() *Server {
+	s := &Server{&goserver.GoServer{}, &pb.CardList{}}
+	s.Register = s
 	return s
 }
 
@@ -87,6 +87,7 @@ func (s *Server) sortCards() {
 
 // GetCards gets the card list on the server
 func (s *Server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, error) {
+	log.Printf("READING CARDS: %v (%v)", s.cards, s)
 	s.removeStaleCards()
 	s.cards = s.dedup(s.cards)
 	s.sortCards()

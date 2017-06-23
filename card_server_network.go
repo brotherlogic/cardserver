@@ -69,6 +69,7 @@ func (s *Server) prepareList() {
 	} else {
 		s.cards = rc.(*pb.CardList)
 	}
+	log.Printf("SERVING: %v (%v)", s.cards, s)
 }
 
 func main() {
@@ -77,5 +78,6 @@ func main() {
 	server.PrepServer()
 	server.RegisterServer("cardserver", false)
 	server.prepareList()
+	log.Printf("SERVING WITH %v (%v)", server.cards, server)
 	server.Serve()
 }
