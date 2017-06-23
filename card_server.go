@@ -14,6 +14,7 @@ import (
 
 const (
 	port = ":50051"
+	key  = "/github.com/brotherlogic/cardserver/cards"
 )
 
 // Server The server to use
