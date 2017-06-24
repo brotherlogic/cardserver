@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"io/ioutil"
 	"log"
 
 	"github.com/brotherlogic/keystore/client"
@@ -31,7 +33,9 @@ func (s *Server) Mote(master bool) error {
 
 // SaveCardList stores the cardlist
 func (s *Server) SaveCardList() {
+	log.Printf("STARTED SAVE")
 	s.Save(key, s.cards)
+	log.Printf("FINISHED SAVE")
 }
 
 func findServer(name string) (string, int) {
@@ -55,7 +59,7 @@ func findServer(name string) (string, int) {
 		}
 	}
 
-	log.Printf("No Cardserver running")
+	log.Printf("No %v running", name)
 
 	return "", -1
 }
@@ -73,6 +77,15 @@ func (s *Server) prepareList() {
 }
 
 func main() {
+	var quiet = flag.Bool("quiet", true, "Show all output")
+	flag.Parse()
+	//Turn off logging
+	if *quiet {
+		log.SetFlags(0)
+		log.SetOutput(ioutil.Discard)
+	}
+	log.Printf("Logging is on!")
+
 	server := InitServer()
 	server.GoServer.KSclient = *keystoreclient.GetClient(findServer)
 	server.PrepServer()
