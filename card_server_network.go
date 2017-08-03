@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"log"
+	"time"
 
 	"github.com/brotherlogic/keystore/client"
 	"google.golang.org/grpc"
@@ -20,7 +21,10 @@ func (s *Server) DoRegister(server *grpc.Server) {
 
 // ReportHealth Determines if the server is healthy
 func (s *Server) ReportHealth() bool {
-	return true
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	_, err := s.GetCards(ctx, &pb.Empty{})
+	return err == nil
 }
 
 // Mote promotes this server
