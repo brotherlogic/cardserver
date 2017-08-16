@@ -26,7 +26,8 @@ func (s *Server) ReportHealth() bool {
 // Mote promotes this server
 func (s *Server) Mote(master bool) error {
 	if master {
-		s.prepareList()
+		err := s.prepareList()
+		return err
 	}
 	return nil
 }
@@ -64,16 +65,18 @@ func findServer(name string) (string, int) {
 	return "", -1
 }
 
-func (s *Server) prepareList() {
+func (s *Server) prepareList() error {
 	cl := &pb.CardList{}
 	rc, err := s.Read(key, cl)
 	log.Printf("READ %v", rc)
 	if err != nil {
 		log.Printf("Failed to read cards! %v", err)
-	} else {
-		s.cards = rc.(*pb.CardList)
+		return err
 	}
+
+	s.cards = rc.(*pb.CardList)
 	log.Printf("SERVING: %v (%v)", s.cards, s)
+	return nil
 }
 
 func main() {
