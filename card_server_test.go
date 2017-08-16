@@ -19,6 +19,7 @@ func InitTestServer(clear bool) *Server {
 
 	s := InitServer()
 	s.GoServer.KSclient = *keystoreclient.GetTestClient(".testing/")
+	s.SkipLog = true
 	s.prepareList()
 	return s
 }
