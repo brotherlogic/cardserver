@@ -70,6 +70,7 @@ func findServer(name string) (string, int) {
 }
 
 func (s *Server) prepareList() error {
+	t := time.Now()
 	cl := &pb.CardList{}
 	rc, err := s.Read(key, cl)
 	log.Printf("READ %v", rc)
@@ -80,6 +81,7 @@ func (s *Server) prepareList() error {
 
 	s.cards = rc.(*pb.CardList)
 	log.Printf("SERVING: %v (%v)", s.cards, s)
+	s.LogFunction("prepareList", t)
 	return nil
 }
 
