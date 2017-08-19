@@ -68,16 +68,18 @@ func findServer(name string) (string, int) {
 	return "", -1
 }
 
-func (s *Server) prepareList() {
+func (s *Server) prepareList() error {
 	cl := &pb.CardList{}
 	rc, err := s.Read(key, cl)
 	log.Printf("READ %v", rc)
 	if err != nil {
 		log.Printf("Failed to read cards! %v", err)
+		return err
 	} else {
 		s.cards = rc.(*pb.CardList)
 	}
 	log.Printf("SERVING: %v (%v)", s.cards, s)
+	return nil
 }
 
 func main() {
@@ -94,7 +96,9 @@ func main() {
 	server.GoServer.KSclient = *keystoreclient.GetClient(findServer)
 	server.PrepServer()
 	server.RegisterServer("cardserver", false)
-	server.prepareList()
+	if server.prepareList() != nil {
+		panic("Unable to find cardserver details")
+	}
 	log.Printf("SERVING WITH %v (%v)", server.cards, server)
 	server.Serve()
 }
