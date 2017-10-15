@@ -73,7 +73,8 @@ func main() {
 	server.PrepServer()
 	server.RegisterServer("cardserver", false)
 	if server.prepareList() != nil {
-		panic("Unable to find cardserver details")
+		log.Printf("Unable to find cardserver details")
+		return
 	}
 	log.Printf("SERVING WITH %v (%v)", server.cards, server)
 	server.Serve()
