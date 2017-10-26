@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -20,10 +19,7 @@ func (s *Server) DoRegister(server *grpc.Server) {
 
 // ReportHealth Determines if the server is healthy
 func (s *Server) ReportHealth() bool {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
-	_, err := s.GetCards(ctx, &pb.Empty{})
-	return err == nil
+	return true
 }
 
 // Mote promotes this server
