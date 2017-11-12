@@ -4,12 +4,12 @@ import (
 	"flag"
 	"io/ioutil"
 	"log"
-	"time"
 
 	"github.com/brotherlogic/keystore/client"
 	"google.golang.org/grpc"
 
 	pb "github.com/brotherlogic/cardserver/card"
+	pbgs "github.com/brotherlogic/goserver/proto"
 )
 
 // DoRegister Registers this server
@@ -31,6 +31,11 @@ func (s *Server) Mote(master bool) error {
 	return nil
 }
 
+// GetState gets the state of server
+func (s Server) GetState() []*pbgs.State {
+	return []*pbgs.State{}
+}
+
 // SaveCardList stores the cardlist
 func (s *Server) SaveCardList() {
 	log.Printf("STARTED SAVE")
@@ -39,7 +44,6 @@ func (s *Server) SaveCardList() {
 }
 
 func (s *Server) prepareList() error {
-	t := time.Now()
 	cl := &pb.CardList{}
 	rc, err := s.Read(key, cl)
 	log.Printf("READ %v", rc)
@@ -50,7 +54,6 @@ func (s *Server) prepareList() error {
 
 	s.cards = rc.(*pb.CardList)
 	log.Printf("SERVING: %v (%v)", s.cards, s)
-	s.LogFunction("prepareList", t)
 	return nil
 }
 
