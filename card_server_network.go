@@ -45,7 +45,7 @@ func (s *Server) SaveCardList() {
 
 func (s *Server) prepareList() error {
 	cl := &pb.CardList{}
-	rc, err := s.Read(key, cl)
+	rc, _, err := s.Read(key, cl)
 	log.Printf("READ %v", rc)
 	if err != nil {
 		log.Printf("Failed to read cards! %v", err)
