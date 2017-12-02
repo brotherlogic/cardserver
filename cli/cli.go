@@ -11,10 +11,11 @@ import (
 
 	pb "github.com/brotherlogic/cardserver/card"
 	pbdi "github.com/brotherlogic/discovery/proto"
+	"github.com/brotherlogic/goserver/utils"
 )
 
 func findServer(name string) (string, int) {
-	conn, err := grpc.Dial("192.168.86.42:50055", grpc.WithInsecure())
+	conn, err := grpc.Dial(utils.Discover, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Cannot reach discover server: %v (trying to discover %v)", err, name)
 	}

@@ -87,28 +87,23 @@ func (s *Server) sortCards() {
 
 // GetCards gets the card list on the server
 func (s *Server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, error) {
-	t := time.Now()
 	log.Printf("READING CARDS: %v (%v)", s.cards, s)
 	s.removeStaleCards()
 	s.cards = s.dedup(s.cards)
 	s.sortCards()
-	s.LogFunction("GetCards", t)
 	return s.cards, nil
 }
 
 // AddCards adds cards to the server
 func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, error) {
-	t := time.Now()
 	log.Printf("ADDING CARDS: %v", in)
 	s.cards.Cards = append(s.cards.Cards, in.Cards...)
 	s.SaveCardList()
-	s.LogFunction("AddCards", t)
 	return s.cards, nil
 }
 
 // DeleteCards removes cards from the server
 func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.CardList, error) {
-	t := time.Now()
 	log.Printf("DELETE: %v", in)
 	if in.Hash != "" {
 		s.cards = s.remove(in.Hash)
@@ -116,6 +111,5 @@ func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.Car
 		s.cards = s.removePrefix(in.HashPrefix)
 	}
 	s.SaveCardList()
-	s.LogFunction("DeleteCards", t)
 	return s.cards, nil
 }
