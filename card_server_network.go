@@ -26,7 +26,7 @@ func (s *Server) ReportHealth() bool {
 // Mote promotes this server
 func (s *Server) Mote(ctx context.Context, master bool) error {
 	if master {
-		err := s.prepareList()
+		err := s.prepareList(ctx)
 		return err
 	}
 	return nil
@@ -38,15 +38,15 @@ func (s Server) GetState() []*pbgs.State {
 }
 
 // SaveCardList stores the cardlist
-func (s *Server) SaveCardList() {
+func (s *Server) SaveCardList(ctx context.Context) {
 	log.Printf("STARTED SAVE")
-	s.Save(key, s.cards)
+	s.Save(ctx, key, s.cards)
 	log.Printf("FINISHED SAVE")
 }
 
-func (s *Server) prepareList() error {
+func (s *Server) prepareList(ctx context.Context) error {
 	cl := &pb.CardList{}
-	rc, _, err := s.Read(key, cl)
+	rc, _, err := s.Read(ctx, key, cl)
 	log.Printf("READ %v", rc)
 	if err != nil {
 		log.Printf("Failed to read cards! %v", err)
@@ -72,10 +72,6 @@ func main() {
 	server.GoServer.KSclient = *keystoreclient.GetClient(server.GetIP)
 	server.PrepServer()
 	server.RegisterServer("cardserver", false)
-	if server.prepareList() != nil {
-		log.Printf("Unable to find cardserver details")
-		return
-	}
-	log.Printf("SERVING WITH %v (%v)", server.cards, server)
+
 	server.Serve()
 }

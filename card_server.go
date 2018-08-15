@@ -98,7 +98,7 @@ func (s *Server) GetCards(ctx context.Context, in *pb.Empty) (*pb.CardList, erro
 func (s *Server) AddCards(ctx context.Context, in *pb.CardList) (*pb.CardList, error) {
 	log.Printf("ADDING CARDS: %v", in)
 	s.cards.Cards = append(s.cards.Cards, in.Cards...)
-	s.SaveCardList()
+	s.SaveCardList(ctx)
 	return s.cards, nil
 }
 
@@ -110,6 +110,6 @@ func (s *Server) DeleteCards(ctx context.Context, in *pb.DeleteRequest) (*pb.Car
 	} else {
 		s.cards = s.removePrefix(in.HashPrefix)
 	}
-	s.SaveCardList()
+	s.SaveCardList(ctx)
 	return s.cards, nil
 }
