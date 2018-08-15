@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/brotherlogic/keystore/client"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	pb "github.com/brotherlogic/cardserver/card"
@@ -23,7 +24,7 @@ func (s *Server) ReportHealth() bool {
 }
 
 // Mote promotes this server
-func (s *Server) Mote(master bool) error {
+func (s *Server) Mote(ctx context.Context, master bool) error {
 	if master {
 		err := s.prepareList()
 		return err
