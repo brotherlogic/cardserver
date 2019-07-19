@@ -74,7 +74,7 @@ func main() {
 	log.Printf("Logging is on!")
 
 	server := InitServer()
-	server.GoServer.KSclient = *keystoreclient.GetClient(server.GetIP)
+	server.GoServer.KSclient = *keystoreclient.GetClient(server.DialMaster)
 	server.PrepServer()
 	server.RegisterServer("cardserver", false)
 
